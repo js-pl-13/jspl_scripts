@@ -28,7 +28,7 @@ MSyntax ApplyDQVertexColorsCmd::newSyntax() {
     syn.addFlag("-colors", "-c", MSyntax::kDouble, MSyntax::kDouble, MSyntax::kDouble); // repeated triples
     syn.addFlag("-verts", "-v", MSyntax::kLong); // repeated integers
     syn.addFlag("-set", "-s", MSyntax::kString);
-    syn.addFlag("-merge", "-M", MSyntax::kBoolean); // новый флаг
+    syn.addFlag("-merge", "-M", MSyntax::kBoolean); // The new flag
     syn.useSelectionAsDefault(false);
     syn.enableQuery(false);
     syn.enableEdit(false);
@@ -40,11 +40,11 @@ MStatus ApplyDQVertexColorsCmd::doIt(const MArgList& args) {
 
     MString meshName;
     MString colorSetName = "dqColorSet";
-    bool merge = true; // по умолчанию объединять
+    bool merge = true; // combine by default
     MIntArray vertArray;
     MColorArray colors;
 
-    // --- Парсинг флагов ---
+    // --- Flag parsing ---
     for (unsigned int i = 0; i < args.length(); ++i) {
         MString token = args.asString(i, &status);
         if (token == "-mesh" || token == "-m") {
@@ -88,7 +88,7 @@ MStatus ApplyDQVertexColorsCmd::doIt(const MArgList& args) {
         return MS::kFailure;
     }
 
-    // --- Получение меша ---
+    // --- Getting a mesh ---
     MSelectionList sel;
     sel.add(meshName);
     MDagPath meshDag;
@@ -98,7 +98,7 @@ MStatus ApplyDQVertexColorsCmd::doIt(const MArgList& args) {
     MFnMesh fnMesh(meshDag, &status);
     if (!status) { MGlobal::displayError("applyDQVertexColors: failed to get MFnMesh."); return MS::kFailure; }
 
-    // --- Создание colorSet с учетом merge ---
+    // --- Creating a colorSet based on merge ---
     MStringArray existing;
     fnMesh.getColorSetNames(existing);
     bool hasSet = false;
@@ -114,7 +114,7 @@ MStatus ApplyDQVertexColorsCmd::doIt(const MArgList& args) {
     if (!hasSet) { fnMesh.createColorSet(colorSetName); }
     fnMesh.setCurrentColorSetName(colorSetName);
 
-    // --- Прогресс окно ---
+    // --- Progress window ---
     MGlobal::executeCommand(
         "progressWindow -title \"Applying DQ Colors\" "
         "-progress 0 "
@@ -122,7 +122,7 @@ MStatus ApplyDQVertexColorsCmd::doIt(const MArgList& args) {
         " -status \"Applying vertex colors...\" -isInterruptable true"
     );
 
-    // --- Обработка блоками по 666 вершин ---
+    // --- Processing in blocks of 666 vertices ---
     const unsigned int blockSize = 666;
     for (unsigned int start = 0; start < vertArray.length(); start += blockSize) {
         unsigned int end = std::min(start + blockSize, (unsigned int)vertArray.length());
@@ -136,10 +136,10 @@ MStatus ApplyDQVertexColorsCmd::doIt(const MArgList& args) {
 
         fnMesh.setVertexColors(blockColors, blockVerts);
 
-        // Обновление прогресса
+        // Progress Update
         MGlobal::executeCommand(MString("progressWindow -edit -progress ") + end);
 
-        // Проверка отмены
+        // Checking for cancellation
         MString cancelled;
         MGlobal::executeCommand("progressWindow -query -isCancelled", cancelled);
         if (cancelled == "true") {
@@ -149,10 +149,10 @@ MStatus ApplyDQVertexColorsCmd::doIt(const MArgList& args) {
         }
     }
 
-    // Завершение прогресс окна
+    // Completion of the progress window
     MGlobal::executeCommand("progressWindow -edit -endProgress");
 
-    // Включить отображение цветов
+    // Enable color display
     MPlug displayColorsPlug = fnMesh.findPlug("displayColors", false, &status);
     if (status) displayColorsPlug.setValue(true);
 
