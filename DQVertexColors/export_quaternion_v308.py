@@ -24,7 +24,7 @@ convert DQ weights to a grayscale color set for visualization and further use in
 """
 
 # --- load plugin automatically ---
-PLUGIN_PATH = r"E:\maya_plugins\DQ_weights\applyDQVertexColorsCmd\x64\Release\applyDQVertexColors.mll"
+PLUGIN_PATH = r"U:\AssetStorage\CharTools\an_scripts\skinning\quaternion_plugin\applyDQVertexColors.mll"
 if not cmds.pluginInfo(PLUGIN_PATH, query=True, loaded=True):
     try:
         cmds.loadPlugin(PLUGIN_PATH)
@@ -445,7 +445,7 @@ def dq_weights_v308_ui():
     cmds.showWindow(window)
 
 
-def export_quaternion_v308():
+def export_quaternion_v3():
     """
     Function that launches the interface from the script manager (its name must match the file name)
     """
@@ -453,5 +453,5 @@ def export_quaternion_v308():
 
 
 if __name__ == '__main__':
-    export_quaternion_v308()
+    export_quaternion_v3()
 

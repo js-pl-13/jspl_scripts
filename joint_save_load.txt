@@ -1,0 +1,121 @@
+# -*- coding: utf-8 -*-
+import maya.cmds as cmds
+import os
+
+#_____________FUNCTIONS
+def save_selected_joints_info(filepath):
+    sel = cmds.ls(selection=True, type="joint")
+    if not sel:
+        cmds.warning("Select at least one joint to save.")
+        return
+
+    all_joints = []
+    for root in sel:
+        descendants = cmds.listRelatives(root, allDescendents=True, type="joint") or []
+        all_joints.append(root)
+        all_joints.extend(descendants)
+    all_joints = list(set(all_joints))
+    all_joints.sort(key=lambda x: cmds.listRelatives(x, allParents=True) or [""])
+
+    try:
+        with open(filepath, "w") as f:
+            f.write("JointName\tParent\tTranslateX\tTranslateY\tTranslateZ\tRotateX\tRotateY\tRotateZ\tJointOrientX\tJointOrientY\tJointOrientZ\n")
+            for jnt in all_joints:
+                parent = cmds.listRelatives(jnt, parent=True)
+                parent_name = parent[0] if parent else "None"
+
+                t = cmds.getAttr(jnt + ".translate")[0]
+                r = cmds.getAttr(jnt + ".rotate")[0]
+                jo = cmds.getAttr(jnt + ".jointOrient")[0]
+
+                line = "{0}\t{1}\t{2:.6f}\t{3:.6f}\t{4:.6f}\t{5:.6f}\t{6:.6f}\t{7:.6f}\t{8:.6f}\t{9:.6f}\t{10:.6f}\n".format(
+                    jnt, parent_name, t[0], t[1], t[2], r[0], r[1], r[2], jo[0], jo[1], jo[2]
+                )
+                f.write(line)
+
+        print("Joint data saved to: {}".format(filepath))
+    except Exception as e:
+        cmds.warning("Error while writing file: {}".format(e))
+
+#_____________FUNCTIONS
+def load_joints_from_file(filepath):
+    if not os.path.exists(filepath):
+        cmds.warning("File not found: {}".format(filepath))
+        return
+
+    joint_data = {}
+
+    try:
+        with open(filepath, "r") as f:
+            lines = f.readlines()
+
+        for line in lines[1:]:
+            if not line.strip():
+                continue
+            parts = line.strip().split("\t")
+            if len(parts) != 11:
+                continue
+            name = parts[0]
+            parent = parts[1] if parts[1] != "None" else None
+            t = [float(parts[2]), float(parts[3]), float(parts[4])]
+            r = [float(parts[5]), float(parts[6]), float(parts[7])]
+            jo = [float(parts[8]), float(parts[9]), float(parts[10])]
+            joint_data[name] = {"parent": parent, "translate": t, "rotate": r, "jointOrient": jo}
+
+        for jnt in joint_data:
+            if not cmds.objExists(jnt):
+                cmds.select(clear=True)
+                cmds.joint(name=jnt)
+
+        for jnt, data in joint_data.items():
+            parent = data["parent"]
+            if parent and cmds.objExists(parent):
+                current_parent = cmds.listRelatives(jnt, parent=True)
+                if not current_parent or current_parent[0] != parent:
+                    try:
+                        cmds.parent(jnt, parent)
+                    except:
+                        pass
+
+        for jnt, data in joint_data.items():
+            t = data["translate"]
+            r = data["rotate"]
+            jo = data["jointOrient"]
+            cmds.setAttr(jnt + ".translate", t[0], t[1], t[2])
+            cmds.setAttr(jnt + ".rotate", r[0], r[1], r[2])
+            cmds.setAttr(jnt + ".jointOrient", jo[0], jo[1], jo[2])
+
+        print("Joints loaded from: {}".format(filepath))
+    except Exception as e:
+        cmds.warning("Error while loading file: {}".format(e))
+
+#_____________UI
+def jspl_joint_save_load_ui():
+    window_name = "JPLJointSaveLoadUI"
+    if cmds.window(window_name, exists=True):
+        cmds.deleteUI(window_name)
+
+    cmds.window(window_name, title="Joint Save/Load Tool", widthHeight=(400, 120))
+    cmds.columnLayout(adjustableColumn=True, rowSpacing=10)
+
+    #_____________path
+    cmds.text(label="File Path:")
+    file_field = cmds.textField(text="D:/joint_data.txt")
+
+    #_____________save
+    def on_save(*args):
+        filepath = cmds.textField(file_field, query=True, text=True)
+        save_selected_joints_info(filepath)
+
+    cmds.button(label="Save Selected Joints", command=on_save, height=40)
+
+    #_____________load
+    def on_load(*args):
+        filepath = cmds.textField(file_field, query=True, text=True)
+        load_joints_from_file(filepath)
+
+    cmds.button(label="Load Joints from File", command=on_load, height=40)
+
+    cmds.showWindow(window_name)
+
+jspl_joint_save_load_ui()
