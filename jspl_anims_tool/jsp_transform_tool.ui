@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>760</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>jspl Anims tool</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+
+    <!-- ROOT FILTER (без чекбоксов Translate/Rotate) -->
+    <item>
+     <layout class="QHBoxLayout" name="rootLayout">
+      <item>
+       <widget class="QLineEdit" name="lineRoot">
+        <property name="placeholderText">
+         <string>:ROOT</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chkUseRoot"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnRemoveRoot">
+        <property name="minimumSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>-</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnAddRoot">
+        <property name="minimumSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>+</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+
+    <!-- TEMP COPY / PASTE (с новыми чекбоксами) -->
+    <item>
+     <widget class="QGroupBox" name="grpTemp">
+      <property name="title">
+       <string>Temporary File</string>
+      </property>
+      <layout class="QVBoxLayout">
+       <!-- Чекбоксы Translate и Rotate под заголовком -->
+       <item>
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="QCheckBox" name="chkRootTranslate">
+           <property name="text">
+            <string>Translate</string>
+           </property>
+           <!-- Галочка снята по умолчанию -->
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="chkRootRotate">
+           <property name="text">
+            <string>Rotate</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+
+       <!-- Кнопки Copy / Paste -->
+       <item>
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="QPushButton" name="btnCopyTemp">
+           <property name="text">
+            <string>Copy</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnPasteTemp">
+           <property name="text">
+            <string>Paste</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+
+    <!-- PROJECTS -->
+    <item>
+     <widget class="QGroupBox" name="grpProjects">
+      <property name="title">
+       <string>Projects</string>
+      </property>
+      <layout class="QHBoxLayout">
+       <item>
+        <widget class="QComboBox" name="cmbProjects"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnAddProject">
+         <property name="minimumSize">
+          <size>
+           <width>25</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>25</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnRemoveProject">
+         <property name="minimumSize">
+          <size>
+           <width>25</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>25</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnRefreshProjects">
+         <property name="text">
+          <string>Refresh</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+
+    <!-- CHARACTERS / ANIMS -->
+    <item>
+     <layout class="QHBoxLayout" name="charactersAnimsLayout">
+      <item>
+       <widget class="QGroupBox" name="grpCharacters">
+        <property name="title">
+         <string>Characters</string>
+        </property>
+        <layout class="QVBoxLayout">
+         <item>
+          <widget class="QListWidget" name="listCharacters"/>
+         </item>
+         <item>
+          <layout class="QHBoxLayout">
+           <item>
+            <widget class="QPushButton" name="btnAddCharacter">
+             <property name="text">
+              <string>Add</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnRemoveCharacter">
+             <property name="text">
+              <string>Remove</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnRefreshCharacters">
+             <property name="text">
+              <string>Refresh</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QGroupBox" name="grpAnims">
+        <property name="title">
+         <string>Animations</string>
+        </property>
+        <layout class="QVBoxLayout">
+         <item>
+          <widget class="QListWidget" name="listAnims"/>
+         </item>
+         <item>
+          <layout class="QHBoxLayout">
+           <item>
+            <widget class="QPushButton" name="btnRemoveAnim">
+             <property name="text">
+              <string>Remove</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnRefreshAnims">
+             <property name="text">
+              <string>Refresh</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </item>
+
+    <!-- SAVING -->
+    <item>
+     <widget class="QGroupBox" name="grpSave">
+      <property name="title">
+       <string>Saving</string>
+      </property>
+      <layout class="QVBoxLayout">
+       <item>
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="QCheckBox" name="chkSaveTranslate">
+           <property name="text">
+            <string>Translate</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="chkSaveRotate">
+           <property name="text">
+            <string>Rotate</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSave">
+         <property name="text">
+          <string>Save</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+
+    <!-- IMPORT EVERYTHING FROM THE ANIMATION LIST -->
+    <item>
+     <widget class="QGroupBox" name="grpImport">
+      <property name="title">
+       <string>Import everything from the animation list</string>
+      </property>
+      <layout class="QVBoxLayout">
+       <!-- Чекбоксы -->
+       <item>
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="QCheckBox" name="chkAutoStepTangents">
+           <property name="text">
+            <string>Auto step tangents</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="chkAutoKeyAll">
+           <property name="text">
+            <string>Auto Key All Keyable</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+
+       <!-- Одна горизонтальная строка с тремя полями -->
+       <item>
+        <layout class="QHBoxLayout">
+         <!-- Key all keyable -->
+         <item>
+          <layout class="QVBoxLayout">
+           <item>
+            <widget class="QLabel">
+             <property name="text">
+              <string>Key all keyable</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinKeyAll">
+             <property name="minimum">
+              <number>-9999</number>
+             </property>
+             <property name="maximum">
+              <number>9999</number>
+             </property>
+             <property name="value">
+              <number>-1</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+
+         <!-- Start frame -->
+         <item>
+          <layout class="QVBoxLayout">
+           <item>
+            <widget class="QLabel">
+             <property name="text">
+              <string>Start frame</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinStartFrame">
+             <property name="minimum">
+              <number>-9999</number>
+             </property>
+             <property name="maximum">
+              <number>99999</number>
+             </property>
+             <property name="value">
+              <number>5</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+
+         <!-- Frame step -->
+         <item>
+          <layout class="QVBoxLayout">
+           <item>
+            <widget class="QLabel">
+             <property name="text">
+              <string>Frame step</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinFrameStep">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>999</number>
+             </property>
+             <property name="value">
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+
+       <!-- Кнопки -->
+       <item>
+        <widget class="QPushButton" name="btnChangeTangents">
+         <property name="text">
+          <string>Change tangents</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnKeyAll">
+         <property name="text">
+          <string>Key All Keyable</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
