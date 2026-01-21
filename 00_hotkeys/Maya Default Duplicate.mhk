@@ -1,0 +1,216 @@
+//Maya Preference 2019 (Release 1)
+//
+//
+
+//
+// The runtime commands referenced by the hotkeys
+//
+runTimeCommand
+	-annotation "Toggle_Outliner"
+	-category "Custom Scripts.Toggle_Outliner"
+	-hotkeyCtx ""
+	-commandLanguage "mel"
+	-command ("ToggleOutliner;")
+	Toggle_Outliner;
+
+runTimeCommand
+	-annotation "CopySelJnt"
+	-category "Custom Scripts.CopySelJnt"
+	-hotkeyCtx ""
+	-commandLanguage "python"
+	-command ("# jspl_copy_weights_tool.py\n\nimport maya.cmds as cmds\nimport cStringIO\n\n#_____________FUNCTION\ndef jspl_copy_weights_from_last_selected_vertex():\n    \"\"\"\n    Copy skin weights from the last selected vertex to all other selected vertices.\n    The last vertex is treated as the source; all others receive its weights.\n    \"\"\"\n\n    #_____________SELECTION\n    selection = cmds.ls(orderedSelection=True, flatten=True)\n\n    #_____________VERTEX_FILTER\n    verts = [v for v in selection if '.vtx[' in v]\n\n    if len(verts) < 2:\n        cmds.error(\"Please select at least 2 vertices!\")\n\n    #_____________SOURCE_TARGET\n    source_vert = verts[-1]\n    target_verts = verts[:-1]\n\n    base_mesh = source_vert.split('.')[0]\n\n    #_____________SKINCLUSTER_FIND\n    history = cmds.listHistory(base_mesh)\n    skinClusters = cmds.ls(history, type='skinCluster')\n    if not skinClusters:\n        cmds.error(\"No skinCluster found on mesh: {}\".format(base_mesh))\n    skinClusterName = skinClusters[0]\n\n    #_____________READ_WEIGHTS\n    influences = cmds.skinCluster(skinClusterName, q=True, inf=True)\n    weights = cmds.skinPercent(skinClusterName, source_vert, query=True, value=True)\n\n    #_____________BUILD_COMMAND\n    cmds.select(target_verts)\n    command = cStringIO.StringIO()\n    command.write('cmds.skinPercent(\"{}\", transformValue=['.format(skinClusterName))\n\n    for i, (inf, w) in enumerate(zip(influences, weights)):\n        command.write('(\"{}\", {})'.format(inf, w))\n        if i != len(influences) - 1:\n            command.write(', ')\n\n    command.write('], normalize=False, zeroRemainingInfluences=True)')\n\n    #_____________EXECUTE_UNDO\n    cmds.undoInfo(openChunk=True)\n    try:\n        eval(command.getvalue())\n    finally:\n        cmds.undoInfo(closeChunk=True)\n\n    print(\"Copied weights from {} to {} vertices.\".format(source_vert, len(target_verts)))\n\n\n#_____________RUN\njspl_copy_weights_from_last_selected_vertex()\n")
+	CopySelJnt;
+
+runTimeCommand
+	-annotation "Hide_jnt"
+	-category "Custom Scripts.Hide_jnt"
+	-hotkeyCtx ""
+	-commandLanguage "python"
+	-command ("import maya.cmds as cmds\n\ndef hide_jnts():\n    model_panels = cmds.getPanel(type='modelPanel')\n    if not model_panels:\n        cmds.warning(\"No model panels found\")\n        return\n    \n    indices_to_toggle = [1,2,3,4,5,6,7,8]\n    \n    for index in indices_to_toggle:\n        if index < len(model_panels):\n            panel = model_panels[index]\n            current_state = cmds.modelEditor(panel, query=True, joints=True)\n            cmds.modelEditor(panel, edit=True, joints=not current_state)\n\nhide_jnts()\n")
+	Hide_jnt;
+
+runTimeCommand
+	-annotation "reset_rotate"
+	-category "Custom Scripts.reset_rotate"
+	-hotkeyCtx ""
+	-commandLanguage "python"
+	-command ("#Hotkey Alt+R\nimport maya.cmds as cmds\n\n#_____________FUNCTION\ndef jspl_reset_joint_rotate(*args):\n    \"\"\"\n    Reset rotation of selected joints to zero on X, Y, Z axes.\n    \"\"\"\n\n    #_____________UI  Get selected joints\n    selection = cmds.ls(selection=True, type='joint')\n    if not selection:\n        cmds.warning(\"Select at least one joint.\")\n        return\n\n    #_____________UI  Reset rotation for each joint\n    for joint in selection:\n        for axis in (\"X\", \"Y\", \"Z\"):\n            attr = joint + \".rotate\" + axis\n            if not cmds.getAttr(attr, lock=True):\n                try:\n                    cmds.setAttr(attr, 0)\n                except Exception as e:\n                    cmds.warning(\"Failed to reset {}: {}\".format(attr, e))\n\n#_____________UI  Run function\njspl_reset_joint_rotate()\n")
+	reset_rotate;
+
+runTimeCommand
+	-annotation "SelectJoint"
+	-category "Custom Scripts.SelectJoint"
+	-hotkeyCtx ""
+	-commandLanguage "python"
+	-command ("import maya.cmds as cmds\n\nif cmds.selectType(q=True, joint=True):\n    cmds.selectType(joint=False)\nelse:\n    cmds.selectType(joint=True)")
+	SelectJoint;
+
+runTimeCommand
+	-annotation "color_feedback"
+	-category "Custom Scripts.color_feedback"
+	-hotkeyCtx ""
+	-commandLanguage "python"
+	-command ("import maya.cmds as cmds\nimport maya.mel as mel\n\ndef toggle_color_feedback(*args):\n    ctx = mel.eval('currentCtx')\n    if not ctx.startswith('artAttrSkin'):\n        cmds.warning(\"Open Paint Skin Weights Tool\")\n        return\n\n    current_state = mel.eval('artAttrSkinPaintCtx -q -colorfeedback {}'.format(ctx))\n    new_state = not current_state\n    mel.eval('artAttrSkinPaintCtx -e -colorfeedback {} {}'.format(str(new_state).lower(), ctx))\n    mel.eval('toolPropertyShow; dR_updateToolSettings; dR_updateToolSettings;')\n\n\ntoggle_color_feedback()\n")
+	color_feedback;
+
+runTimeCommand
+	-annotation "faces_to_vertices"
+	-category "Custom Scripts.faces_to_vertices"
+	-hotkeyCtx ""
+	-commandLanguage "python"
+	-command ("#Hotkey Alt+3\nimport maya.cmds as cmds\n\n#_____________FUNCTION\ndef jspl_faces_to_vertices():\n    \"\"\"\n    Convert selected polygon faces to vertices and open Paint Skin Weights Tool.\n    \"\"\"\n\n    #_____________UI  Get current selection\n    sel = cmds.ls(sl=True, fl=True)\n    if not sel:\n        cmds.warning(\"Nothing is selected.\")\n        return\n\n    #_____________UI  Convert selected polygon faces to vertices\n    verts = cmds.polyListComponentConversion(sel, toVertex=True)\n    verts = cmds.filterExpand(verts, sm=31)  # sm=31 means vertices\n    if not verts:\n        cmds.warning(\"Failed to convert faces to vertices.\")\n        return\n\n    #_____________UI  Select vertices\n    cmds.select(verts, r=True)\n\n    #_____________UI  Launch Paint Skin Weights Tool\n    cmds.ArtPaintSkinWeightsTool()\n\n#_____________UI  Run function\njspl_faces_to_vertices()\n")
+	faces_to_vertices;
+
+runTimeCommand
+	-annotation "CopySelJnt_first"
+	-category "Custom Scripts.CopySelJnt"
+	-hotkeyCtx ""
+	-commandLanguage "python"
+	-command ("import maya.cmds as cmds\nimport cStringIO\n\ndef copy_weights_from_first_selected_vertex():\n    #_____________UI  Get ordered vertex selection\n    selection = cmds.ls(orderedSelection=True, flatten=True)\n\n    #_____________UI  Filter only vertices\n    verts = [v for v in selection if '.vtx[' in v]\n\n    if len(verts) < 2:\n        cmds.error(\"Please select at least 2 vertices!\")\n\n    #_____________UI  Use FIRST selected vertex as source\n    source_vert = verts[0]\n\n    #_____________UI  All others are targets\n    target_verts = verts[1:]\n\n    #_____________UI  Detect mesh\n    base_mesh = source_vert.split('.')[0]\n\n    #_____________UI  Find skinCluster\n    history = cmds.listHistory(base_mesh)\n    skinClusters = cmds.ls(history, type='skinCluster')\n    if not skinClusters:\n        cmds.error(\"No skinCluster found on mesh: {}\".format(base_mesh))\n    skinClusterName = skinClusters[0]\n\n    #_____________UI  Query influences and weights from source vertex\n    influences = cmds.skinCluster(skinClusterName, q=True, inf=True)\n    weights = cmds.skinPercent(skinClusterName, source_vert, query=True, value=True)\n\n    #_____________UI  Build skinPercent command\n    cmds.select(target_verts)\n    command = cStringIO.StringIO()\n    command.write('cmds.skinPercent(\"{}\", transformValue=['.format(skinClusterName))\n\n    for i, (inf, w) in enumerate(zip(influences, weights)):\n        command.write('(\"{}\", {})'.format(inf, w))\n        if i != len(influences) - 1:\n            command.write(', ')\n\n    command.write('], normalize=False, zeroRemainingInfluences=True)')\n\n    #_____________UI  Execute with Undo chunk\n    cmds.undoInfo(openChunk=True)\n    try:\n        eval(command.getvalue())\n    finally:\n        cmds.undoInfo(closeChunk=True)\n\n    print(\"Copied weights from {} to {} vertices.\".format(source_vert, len(target_verts)))\n\n#_____________UI  Run function\ncopy_weights_from_first_selected_vertex()\n")
+	CopySelJnt_first;
+
+//
+// The name commands referenced by the hotkeys
+//
+nameCommand
+	-annotation "SelectHierarchyNameCommand"
+	-sourceType "mel"
+	-command ("SelectHierarchy")
+	SelectHierarchyNameCommand;
+
+nameCommand
+	-annotation "RepeatLastNameCommand"
+	-sourceType "mel"
+	-command ("RepeatLast")
+	RepeatLastNameCommand;
+
+nameCommand
+	-annotation "SelectJointNameCommand"
+	-sourceType "mel"
+	-command ("SelectJoint")
+	SelectJointNameCommand;
+
+nameCommand
+	-annotation "Hide_jntNameCommand"
+	-sourceType "mel"
+	-command ("Hide_jnt")
+	Hide_jntNameCommand;
+
+nameCommand
+	-annotation "PasteVertexSkinWeightsNameCommand"
+	-sourceType "mel"
+	-command ("PasteVertexSkinWeights")
+	PasteVertexSkinWeightsNameCommand;
+
+nameCommand
+	-annotation "CopyVertexSkinWeightsNameCommand"
+	-sourceType "mel"
+	-command ("CopyVertexSkinWeights")
+	CopyVertexSkinWeightsNameCommand;
+
+nameCommand
+	-annotation "ConnectComponentsNameCommand"
+	-sourceType "mel"
+	-command ("ConnectComponents")
+	ConnectComponentsNameCommand;
+
+nameCommand
+	-annotation "WeightHammerNameCommand"
+	-sourceType "mel"
+	-command ("WeightHammer")
+	WeightHammerNameCommand;
+
+nameCommand
+	-annotation "CopySelJntNameCommand"
+	-sourceType "mel"
+	-command ("CopySelJnt")
+	CopySelJntNameCommand;
+
+nameCommand
+	-annotation "color_feedbackNameCommand"
+	-sourceType "mel"
+	-command ("color_feedback")
+	color_feedbackNameCommand;
+
+nameCommand
+	-annotation "faces_to_verticesNameCommand"
+	-sourceType "mel"
+	-command ("faces_to_vertices")
+	faces_to_verticesNameCommand;
+
+nameCommand
+	-annotation "pickValueNameCommand"
+	-sourceType "mel"
+	-command ("pickValue")
+	pickValueNameCommand;
+
+nameCommand
+	-annotation "reset_rotateNameCommand"
+	-sourceType "mel"
+	-command ("reset_rotate")
+	reset_rotateNameCommand;
+
+nameCommand
+	-annotation "CopySelJnt_firstNameCommand"
+	-sourceType "mel"
+	-command ("CopySelJnt_first")
+	CopySelJnt_firstNameCommand;
+
+nameCommand
+	-annotation "Toggle_OutlinerNameCommand"
+	-sourceType "mel"
+	-command ("Toggle_Outliner")
+	Toggle_OutlinerNameCommand;
+
+//
+// The user hotkeys
+//
+//
+// The hotkey set
+//
+hotkeySet -source "Maya_Default" -current Maya_Default_Duplicate;
+//
+// The hotkey contexts and hotkeys
+//
+hotkey -keyShortcut "e" -sht -name ("polySurfacesNameCommand");
+hotkey -keyShortcut "z" -alt -name ("");
+hotkey -keyShortcut "c" -ctl -alt -name ("");
+hotkey -keyShortcut "e" -alt -name ("Toggle_OutlinerNameCommand");
+hotkey -keyShortcut "c" -alt -name ("CopyVertexSkinWeightsNameCommand");
+hotkey -keyShortcut "2" -alt -name ("CopySelJntNameCommand");
+hotkey -keyShortcut "v" -ctl -alt -name ("");
+hotkey -keyShortcut "r" -alt -name ("reset_rotateNameCommand");
+hotkey -keyShortcut "a" -releaseName ("");
+hotkey -keyShortcut "q" -ctl -name ("SelectHierarchyNameCommand");
+hotkey -keyShortcut "w" -sht -name ("pickValueNameCommand");
+hotkey -keyShortcut "a" -name ("ConnectComponentsNameCommand");
+hotkey -keyShortcut "g" -name ("RepeatLastNameCommand");
+hotkey -keyShortcut "3" -alt -name ("faces_to_verticesNameCommand");
+hotkey -keyShortcut "x" -alt -name ("Hide_jntNameCommand");
+hotkey -keyShortcut "o" -name ("dR_viewJointsTGLNameCommand");
+hotkey -keyShortcut "o" -releaseName ("");
+hotkey -keyShortcut "v" -alt -name ("PasteVertexSkinWeightsNameCommand");
+hotkey -keyShortcut "s" -alt -name ("color_feedbackNameCommand");
+hotkey -keyShortcut "1" -alt -name ("WeightHammerNameCommand");
+hotkey -keyShortcut "4" -alt -name ("SelectJointNameCommand");
+hotkey -keyShortcut "w" -alt -name ("CopySelJnt_firstNameCommand");
+hotkey -keyShortcut "c" -ctl -name ("CopySelectedNameCommand");
+hotkeyCtx -type "Editor" -addClient "profilerPanel";
+hotkeyCtx -type "Editor" -addClient "hyperGraphPanel";
+hotkeyCtx -type "Editor" -addClient "posePanel";
+hotkeyCtx -type "Editor" -addClient "nodeEditorPanel";
+hotkeyCtx -type "Editor" -addClient "hyperShadePanel";
+hotkey -keyShortcut "e" -sht -name ("") -ctxClient "hyperShadePanel";
+hotkeyCtx -type "Editor" -addClient "graphEditor";
+hotkeyCtx -type "Editor" -addClient "polyTexturePlacementPanel";
+hotkeyCtx -type "Editor" -addClient "timeEditorPanel";
+hotkeyCtx -type "Editor" -addClient "shapePanel";
+hotkeyCtx -type "Editor" -addClient "outlinerPanel";
+hotkey -keyShortcut "e" -sht -name ("") -ctxClient "outlinerPanel";
+hotkeyCtx -type "Tool" -addClient "Unfold3DBrush";
+hotkeyCtx -type "Tool" -addClient "polyCutUV";
+hotkeyCtx -type "Tool" -addClient "xgmIGBrush";
+hotkeyCtx -type "Tool" -addClient "SymmetrizeUVBrush";
+hotkeyCtx -type "Tool" -addClient "texSculptCacheContext";
+hotkeyCtx -type "Tool" -addClient "sculptMeshCache";
+hotkeyCtx -type "Tool" -addClient "texCutContext";
