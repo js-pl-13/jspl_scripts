@@ -1,2 +1,2 @@
 import jspl_multitools
-jspl_multitools.jspl_multitools_ui_v3()
+jspl_multitools.jspl_multitools_ui()

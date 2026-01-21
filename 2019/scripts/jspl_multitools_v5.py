@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import maya.cmds as cmds
 import maya.mel as mel
 import maya.OpenMaya as om
@@ -306,9 +304,9 @@ def create_plane_from_vertices(*args):
     center, normal = compute_center_and_normal(points)
 
     if add_extra_edges:
-        obj = cmds.polyPlane(w=1, h=1, sx=4, sy=4, name="proxy_Plane#")[0]
+        obj = cmds.polyPlane(w=1, h=1, sx=4, sy=4, name="fittedPlane#")[0]
     else:
-        obj = cmds.polyPlane(w=1, h=1, sx=1, sy=1, name="proxy_Plane#")[0]
+        obj = cmds.polyPlane(w=1, h=1, sx=1, sy=1, name="fittedPlane#")[0]
 
     align_object_to_normal(obj, normal)
     cmds.xform(obj, ws=True, t=(center.x, center.y, center.z))
@@ -323,9 +321,9 @@ def create_box_from_vertices(*args):
     center, normal = compute_center_and_normal(points)
 
     if add_extra_edges:
-        obj = cmds.polyCube(w=1, h=1, d=1, sx=2, sy=2, sz=2, name="proxy_Box#")[0]
+        obj = cmds.polyCube(w=1, h=1, d=1, sx=2, sy=2, sz=2, name="fittedBox#")[0]
     else:
-        obj = cmds.polyCube(w=1, h=1, d=1, name="proxy_Box#")[0]
+        obj = cmds.polyCube(w=1, h=1, d=1, name="fittedBox#")[0]
 
     align_object_to_normal(obj, normal)
     cmds.xform(obj, ws=True, t=(center.x, center.y, center.z))
@@ -340,9 +338,9 @@ def create_cylinder_from_vertices(*args):
     center, normal = compute_center_and_normal(points)
 
     if add_extra_edges:
-        obj = cmds.polyCylinder(r=0.5, h=1, sx=32, sy=4, name="proxy_Cylinder#")[0]
+        obj = cmds.polyCylinder(r=0.5, h=1, sx=32, sy=4, name="fittedCylinder#")[0]
     else:
-        obj = cmds.polyCylinder(r=0.5, h=1, sx=20, sy=1, name="proxy_Cylinder#")[0]
+        obj = cmds.polyCylinder(r=0.5, h=1, sx=20, sy=1, name="fittedCylinder#")[0]
 
     align_object_to_normal(obj, normal)
     cmds.xform(obj, ws=True, t=(center.x, center.y, center.z))
@@ -371,9 +369,9 @@ def create_cylinder_fit_radius(*args):
     height = max(bbox_max[0]-bbox_min[0], bbox_max[1]-bbox_min[1], bbox_max[2]-bbox_min[2])
 
     if add_extra_edges:
-        obj = cmds.polyCylinder(r=avg_radius, h=height, sx=48, sy=4, name="proxy_CylinderFit#")[0]
+        obj = cmds.polyCylinder(r=avg_radius, h=height, sx=48, sy=4, name="fittedCylinderRadius#")[0]
     else:
-        obj = cmds.polyCylinder(r=avg_radius, h=height, sx=32, sy=1, name="proxy_CylinderFit#")[0]
+        obj = cmds.polyCylinder(r=avg_radius, h=height, sx=32, sy=1, name="fittedCylinderRadius#")[0]
 
     align_object_to_normal(obj, normal)
     cmds.xform(obj, ws=True, t=(center.x, center.y, center.z))
@@ -395,8 +393,8 @@ def toggle_place_in_group(state):
 
 # --- UI ---
 
-def jspl_multitools_ui():
-    window_name = "jspl_multitools_ui"
+def jspl_multitools_ui_v5():
+    window_name = "jspl_multitools_ui_v5"
     ctrl_name   = window_name + "WorkspaceControl"
 
     if cmds.window(window_name, exists=True):
@@ -404,17 +402,16 @@ def jspl_multitools_ui():
     if cmds.workspaceControl(ctrl_name, exists=True):
         cmds.deleteUI(ctrl_name)
 
-    
+    # окно
     cmds.window(window_name, title="jspl_multitools", widthHeight=(300, 500), sizeable=True)
     cmds.columnLayout(adjustableColumn=True, rowSpacing=10, columnAlign="center")
 
     # --- Layout ---
     ###cmds.separator(style='in', height=1)
-    cmds.rowLayout(numberOfColumns=4, adjustableColumn=1, columnAttach=(1, 'both', 5))
-    cmds.button(label="LODs", command=lambda x: toggle_visibility("*LOD*"))
-    cmds.button(label="Proxy", command=lambda x: toggle_visibility("*proxy*"))
-    cmds.button(label="Tgl vis CDT", command=toggle_cdt_objects)
-    cmds.button(label="Tgl vis grp", command=vis_lock)
+    cmds.rowLayout(numberOfColumns=3, adjustableColumn=1, columnAttach=(1, 'both', 5))
+    cmds.button(label="Toggle LODs", command=lambda x: toggle_visibility("*LOD*"))
+    cmds.button(label="Toggle CDT", command=toggle_cdt_objects)
+    cmds.button(label="Toggle Vis", command=vis_lock)
     cmds.setParent('..')
 
     cmds.separator(style='in', height=1)
@@ -496,7 +493,6 @@ def jspl_multitools_ui():
         dockToMainWindow=("left", 1),   
         uiScript="cmds.control('{}', e=True, p='{}')".format(window_name, ctrl_name)
     )
-    
 
 
-jspl_multitools_ui()
+jspl_multitools_ui_v5()
