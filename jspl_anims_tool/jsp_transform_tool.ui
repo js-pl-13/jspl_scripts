@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="mainLayout">
 
-    <!-- ROOT FILTER (без чекбоксов Translate/Rotate) -->
+    <!-- ROOT FILTER -->
     <item>
      <layout class="QHBoxLayout" name="rootLayout">
       <item>
@@ -27,24 +27,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="chkUseRoot"/>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnRemoveRoot">
-        <property name="minimumSize">
-         <size>
-          <width>25</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>25</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>-</string>
+       <widget class="QCheckBox" name="chkUseRoot">
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -52,32 +37,51 @@
        <widget class="QPushButton" name="btnAddRoot">
         <property name="minimumSize">
          <size>
-          <width>25</width>
+          <width>45</width>
           <height>25</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>25</width>
+          <width>45</width>
           <height>25</height>
          </size>
         </property>
         <property name="text">
-         <string>+</string>
+         <string>Add</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnRemoveRoot">
+        <property name="minimumSize">
+         <size>
+          <width>45</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>45</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Remove</string>
         </property>
        </widget>
       </item>
      </layout>
     </item>
 
-    <!-- TEMP COPY / PASTE (с новыми чекбоксами) -->
+    <!-- TEMP COPY / PASTE -->
     <item>
      <widget class="QGroupBox" name="grpTemp">
       <property name="title">
        <string>Temporary File</string>
       </property>
       <layout class="QVBoxLayout">
-       <!-- Чекбоксы Translate и Rotate под заголовком -->
+       <!-- Чекбоксы Translate, Rotate, Key All Keyable -->
        <item>
         <layout class="QHBoxLayout">
          <item>
@@ -85,7 +89,6 @@
            <property name="text">
             <string>Translate</string>
            </property>
-           <!-- Галочка снята по умолчанию -->
            <property name="checked">
             <bool>false</bool>
            </property>
@@ -98,6 +101,19 @@
           <widget class="QCheckBox" name="chkRootRotate">
            <property name="text">
             <string>Rotate</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="chkTempKeyAll">
+           <property name="text">
+            <string>Key All Keyable</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -232,7 +248,6 @@
         </layout>
        </widget>
       </item>
-
       <item>
        <widget class="QGroupBox" name="grpAnims">
         <property name="title">
@@ -349,11 +364,9 @@
          </item>
         </layout>
        </item>
-
        <!-- Одна горизонтальная строка с тремя полями -->
        <item>
         <layout class="QHBoxLayout">
-         <!-- Key all keyable -->
          <item>
           <layout class="QVBoxLayout">
            <item>
@@ -378,8 +391,6 @@
            </item>
           </layout>
          </item>
-
-         <!-- Start frame -->
          <item>
           <layout class="QVBoxLayout">
            <item>
@@ -404,8 +415,6 @@
            </item>
           </layout>
          </item>
-
-         <!-- Frame step -->
          <item>
           <layout class="QVBoxLayout">
            <item>
@@ -432,7 +441,6 @@
          </item>
         </layout>
        </item>
-
        <!-- Кнопки -->
        <item>
         <widget class="QPushButton" name="btnChangeTangents">

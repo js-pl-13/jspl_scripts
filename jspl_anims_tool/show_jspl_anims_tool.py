@@ -40,7 +40,7 @@ class JSPLTransformTool(QtWidgets.QDialog):
         
         self.setWindowTitle("jspl Anims tool")
         self.setObjectName(WINDOW_NAME)
-        self.setFixedSize(400, 760)
+        self.setFixedSize(375, 725)
         
         self.main_layout = QtWidgets.QVBoxLayout()
         self.main_layout.setContentsMargins(2, 2, 2, 2)
