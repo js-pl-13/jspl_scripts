@@ -1,42 +1,35 @@
+# -*- coding: utf-8 -*-
 import maya.cmds as cmds
 import os
 
-# --- НАСТРОЙКИ ---
-# Укажите точный путь к вашему файлу fixLocators.mll
-# Обратите внимание на букву r перед кавычками для путей Windows
-PLUGIN_PATH = r"D:\GitHub\jspl_scripts\Maya2015\FaceRig\x64\Release\fixLocators.mll"
+# ----------------- НАСТРОЙКИ -----------------
+PLUGIN_PATH = r"D:\!GIT\jspl_scripts\Maya2015\FaceRig\x64\Release\fixLocators.mll"
+MESH_NAME   = 'clerk_girl_head_head2'
+# ---------------------------------------------
 
-# Имя меша
-MESH_NAME = 'clerk_girl_head_head2'
-# -----------------
-
-# 1. Загрузка плагина
 plugin_name = os.path.basename(PLUGIN_PATH)
 
-# Если плагин уже загружен - выгружаем для обновления
-if cmds.pluginInfo(plugin_name, q=True, loaded=True):
+# 1. Перезагрузка плагина
+if cmds.pluginInfo(plugin_name, query=True, loaded=True):
     try:
         cmds.unloadPlugin(plugin_name)
-        print "Plugin unloaded."
+        print "Плагин выгружен"
     except:
-        print "Could not unload plugin (maybe in use)."
+        print "Не удалось выгрузить плагин (возможно используется)"
 
-# Загружаем
 try:
     cmds.loadPlugin(PLUGIN_PATH)
-    print "Plugin loaded successfully: " + plugin_name
-except Exception as e:
-    cmds.error("Failed to load plugin: " + str(e))
+    print "Плагин загружен:", plugin_name
+except Exception, e:
+    cmds.error("Ошибка загрузки плагина: " + str(e))
 
-# 2. Выполнение команды
-if cmds.objExists(MESH_NAME):
-    # Чистим выделение, чтобы C++ нашел объекты сам
-    cmds.select(cl=True)
-    
-    # ЗАПУСК C++ КОМАНДЫ
-    # Аргумент - имя меша
-    cmds.fixLocators(MESH_NAME)
-    
-    print "C++ execution finished."
-else:
-    cmds.error("Mesh '" + MESH_NAME + "' not found!")
+# 2. Запуск
+if not cmds.objExists(MESH_NAME):
+    cmds.error("Меш '%s' не найден!" % MESH_NAME)
+
+cmds.select(clear=True)
+
+# Вызываем C++ команду
+cmds.fixLocators(MESH_NAME)
+
+print "Выполнение C++ команды завершено"
