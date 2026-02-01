@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="Locators/Locators.vcxproj" Id="5a5867d2-3f30-4f7e-beda-231bdffb29b2" />
+</Solution>
