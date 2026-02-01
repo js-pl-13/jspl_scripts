@@ -92,9 +92,6 @@ def delete_constraints_on_fixed_locs():
 
 
 def add_mesh_to_field(field):
-    """
-    Put selected transform name into the text field.
-    """
     sel = cmds.ls(sl=True, transforms=True)
     if sel:
         cmds.textField(field, e=True, text=sel[0])
@@ -103,24 +100,15 @@ def add_mesh_to_field(field):
 
 
 def clear_field(field):
-    """
-    Clear text field.
-    """
     cmds.textField(field, e=True, text="")
 
 
 def run_fix(field):
-    """
-    Run locator fixing using mesh from UI.
-    """
     mesh = cmds.textField(field, q=True, text=True)
     fix_locators_on_mesh(mesh)
 
 
 def run_blendshape_zero(field):
-    """
-    Set blendShape weights to zero using mesh from UI.
-    """
     mesh = cmds.textField(field, q=True, text=True)
     set_blendshapes_to_zero(mesh)
 
@@ -134,14 +122,18 @@ def locators_on_mesh_ui():
 
     cmds.text(label="Target Mesh")
     mesh_field = cmds.textField()
-
     cmds.rowLayout(nc=2, adj=1)
-    cmds.button(label="Add", c=lambda *_: add_mesh_to_field(mesh_field))
-    cmds.button(label="Remove", c=lambda *_: clear_field(mesh_field))
+    cmds.button(
+        label="Add",
+        c=lambda *_: add_mesh_to_field(mesh_field))
+    cmds.button(
+        label="Remove",
+        c=lambda *_: clear_field(mesh_field))
     cmds.setParent("..")
-
     cmds.separator(h=8, style="in")
-    cmds.button(label="Run", c=lambda *_: run_fix(mesh_field))
+    cmds.button(
+        label="Run",
+        c=lambda *_: run_fix(mesh_field))
     cmds.separator(h=8, style="in")    
     cmds.button(
         label="Set BlendShapes To Zero",
