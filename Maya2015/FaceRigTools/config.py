@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
-WINDOW_NAME = "FaceRigPipelineWindow"
+WINDOW_NAME = "WWZPipelineWindow"
 LIST_WINDOW_NAME = "GeneratedBSListWindow"
 DEFAULT_MAX_INF = 4
 EXPORT_PATH = "D:/data_scripts/face_rig/"
 EXPORT_FILE = "locators_data.json"
+LOD_EXPORT_PATH = r"D:/data_scripts/characters_lods"
 
+# --- BLOCK 2: Blendshapes Settings ---
 BS_DICT = {
     'lBrow_UP': 1, 'lBrow_DW': -1, 'rBrow_UP': 1, 'rBrow_DW': -1,
     'lBrowEvel_UP': 1, 'lBrowEvel_DW': -1, 'rBrowEvel_UP': 1,
@@ -37,4 +39,22 @@ CONTROLLERS_LIST = [
     'lDogDw_CT', 'lEyelid_CT', 'lSquint_CT', 'rBrowEvel_CT', 
     'rBrow_CT', 'rSuspect_CT', 'rLip_CT', 'rDogDw_CT', 
     'rDogUp_CT', 'rEyelid_CT', 'rSquint_CT', 'lKiss_CT', 'rKiss_CT' 
+]
+
+# --- BLOCK 4: LOD Tools Settings ---
+EXPORT_LAYERS_LIST = [
+    "layer_LOD1",
+    "layer_LOD2",
+    "layer_LOD3",
+    "layer_LOD4",
+    "layer_LOD5"
+]
+
+LOD_LAYER_NAMES_FULL = [
+    "layer_LOD0",
+    "layer_LOD1",
+    "layer_LOD2",
+    "layer_LOD3",
+    "layer_LOD4",
+    "layer_LOD5"
 ]

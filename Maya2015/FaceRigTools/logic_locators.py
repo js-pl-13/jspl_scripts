@@ -3,19 +3,19 @@ import maya.cmds as cmds
 import maya.OpenMaya as om
 import json
 import os
-import config # Импортируем конфиг
+import config 
 
 def export_loc_data():
     if not os.path.exists(config.EXPORT_PATH):
         try:
             os.makedirs(config.EXPORT_PATH)
         except OSError as e:
-            cmds.error("Could not create directory: " + str(e))
+            cmds.error("Could not create path: " + str(e))
             return
 
     locators = cmds.ls("*locRot_pos", type="transform")
     if not locators:
-        cmds.warning("No '*locRot_pos' objects found to export.")
+        cmds.warning("No '*locRot_pos' objects found to export")
         return
 
     data = {}
@@ -28,7 +28,7 @@ def export_loc_data():
     try:
         with open(full_path, 'w') as f:
             json.dump(data, f, indent=4)
-        om.MGlobal.displayInfo(">> EXPORT SUCCESS: Data saved to " + full_path)
+        om.MGlobal.displayInfo("Export: Data saved to " + full_path)
     except IOError as e:
         cmds.error("Failed to save file: " + str(e))
 
@@ -42,7 +42,7 @@ def import_loc_data():
         with open(full_path, 'r') as f:
             data = json.load(f)
     except ValueError:
-        cmds.error("Invalid JSON format in file.")
+        cmds.error("Invalid json")
         return
 
     count = 0
@@ -56,11 +56,11 @@ def import_loc_data():
                 print "Warning: Could not set attrs on " + loc_name
         else:
             print "Skipped: " + loc_name + " (not found in scene)"
-    om.MGlobal.displayInfo(">> IMPORT SUCCESS: Updated %d locators." % count)
+    om.MGlobal.displayInfo("Import new locators: Updated %d locators" % count)
 
 def run_fix(mesh):
     if not mesh or not cmds.objExists(mesh):
-        cmds.error("Mesh not found! Please add Base Mesh.")
+        cmds.error("Mesh not found! Add Base Mesh")
         return
 
     cmds.select('*_pos')
@@ -92,7 +92,7 @@ def run_fix(mesh):
         cmds.pointOnPolyConstraint(mo=True, weight=1)
         cmds.delete(cpmNode)
     
-    print ">> Fix Locators Done."
+    print "Fix Locators Done"
 
 def create_warp_bs(target, warp_mesh):
     if cmds.objExists(target) and cmds.objExists(warp_mesh):
@@ -130,10 +130,11 @@ def delete_fixed_locators():
 def delete_constraints():
     f = cmds.ls("*_pos", type="transform")
     if f:
-        cmds.select(f)
-        cmds.createNode("select -hi") # mel fix
-        # Лучше использовать listRelatives для поиска детей
-        children = cmds.listRelatives(f, type="constraint", f=True)
+        children = cmds.listRelatives(f, type="constraint", fullPath=True)
         if children:
             cmds.delete(children)
+            print "Constraints deleted"
+        else:
+            print "No constraints found"
+        
         cmds.select(cl=True)

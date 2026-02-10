@@ -19,7 +19,7 @@ def select_bs_geo():
     if to_select:
         cmds.select(to_select)
 
-# --- Класс окна списка ---
+# _____________ Class "List BS Windows" _____________
 class BSListWindow(object):
     def __init__(self):
         self.window_name = config.LIST_WINDOW_NAME
@@ -32,9 +32,9 @@ class BSListWindow(object):
         ex = [n for n in config.ORDERED_NAMES if cmds.objExists(n)]
         if not ex: return
 
-        win = cmds.window(self.window_name, title="Generated BS List", wh=(250, 480))
+        win = cmds.window(self.window_name, title="BS List", wh=(250, 480))
         cmds.columnLayout(adj=True, rs=2)
-        cmds.text(label="Double-click to Isolate", height=25)
+        cmds.text(label="Double-Click to Mesh = Isolate", height=25)
         
         self.bs_scroll_list = cmds.textScrollList(
             append=ex, 
@@ -57,7 +57,6 @@ class BSListWindow(object):
         if it:
             pan = cmds.getPanel(wf=True)
             if "modelPanel" not in pan:
-                # Попытка найти первый попавшийся modelPanel
                 mps = cmds.getPanel(type="modelPanel")
                 if mps: pan = mps[0]
             
