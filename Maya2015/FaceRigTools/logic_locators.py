@@ -28,7 +28,7 @@ def export_loc_data():
     try:
         with open(full_path, 'w') as f:
             json.dump(data, f, indent=4)
-        om.MGlobal.displayInfo("Export: Data saved to " + full_path)
+        om.MGlobal.displayInfo("Export to: " + full_path)
     except IOError as e:
         cmds.error("Failed to save file: " + str(e))
 

@@ -4,9 +4,7 @@ import maya.mel as mel
 import os
 import config
 
-# ---------------------------------------------------
-# Utils
-# ---------------------------------------------------
+# _________________________________________________________________________________________
 
 def ensure_fbx_plugin():
     if not cmds.pluginInfo("fbxmaya", query=True, loaded=True):
@@ -80,9 +78,9 @@ def get_meshes_from_layer(layer_name):
 
     return list(set(meshes))
 
-# ---------------------------------------------------
-# Export
-# ---------------------------------------------------
+# _____________
+
+# _____________ Export _____________
 
 def export_layer(layer_name):
     meshes = get_meshes_from_layer(layer_name)
@@ -122,9 +120,9 @@ def export_all_lods(*args):
         export_layer(layer)
     print ">>> LOD Export Done."
 
-# ---------------------------------------------------
-# Import + LOD rebuild + materials
-# ---------------------------------------------------
+# _____________
+
+# _____________ Import + mat _____________
 
 def create_lod_layers():
     for layer in config.LOD_LAYER_NAMES_FULL:
@@ -208,11 +206,11 @@ def import_all_dae(*args):
 
     # Сортировка и материалы
     rebuild_lod_layers_and_materials()
-    print "Import"
+    print "Import Done"
 
-# ---------------------------------------------------
-# Copy Skin Logic
-# ---------------------------------------------------
+# _____________
+
+# _____________ Copy Skinning _____________
 
 def copy_skin_to_game_lods(*args):
     all_transforms = cmds.ls(transforms=True) or []
@@ -228,42 +226,60 @@ def copy_skin_to_game_lods(*args):
                 if not cmds.objExists(base_name):
                     continue
 
-                # Ищем skinCluster базового меша
+                # skinCluster 
                 hist = cmds.listHistory(base_name, pruneDagObjects=True) or []
                 skins = cmds.ls(hist, type="skinCluster")
                 if not skins:
                     continue
                 source_skin = skins[0]
 
-                # Подготовка целевого меша
+                #Method и Components
+                useComp = cmds.getAttr(source_skin + '.useComponents')
+                skin_method = cmds.getAttr(source_skin + '.skinningMethod')
+
                 dest_hist = cmds.listHistory(obj, pruneDagObjects=True) or []
                 dest_skins = cmds.ls(dest_hist, type="skinCluster")
                 if dest_skins:
                     cmds.skinCluster(dest_skins[0], e=True, unbind=True)
 
-                # Получаем инфлюенсы
                 influences = cmds.skinCluster(source_skin, q=True, influence=True)
                 joints = cmds.ls(influences, type='joint')
                 nurbs = list(set(influences) - set(joints))
 
-                # Временная кость, если нет костей
                 tempJoint = None
                 if not joints:
                     cmds.select(clear=True)
                     tempJoint = cmds.joint()
                     joints = [tempJoint]
+                
+                if not isinstance(joints, list):
+                    joints = [joints]
 
                 dest_skin = cmds.skinCluster(obj, joints, 
                                              toSelectedBones=True, 
                                              useGeometry=True,
+                                             dropoffRate=4,
+                                             polySmoothness=False, 
+                                             nurbsSamples=25, 
+                                             rui=False, 
+                                             mi=5, 
+                                             omi=False,
                                              normalizeWeights=True)[0]
 
                 if nurbs:
                     cmds.skinCluster(dest_skin, e=True,
                                      useGeometry=True,
+                                     dropoffRate=4, 
+                                     polySmoothness=False,
+                                     nurbsSamples=25,
+                                     lockWeights=False, 
+                                     weight=0,
                                      addInfluence=nurbs)
+                
+                cmds.setAttr((dest_skin + '.useComponents'), useComp)
+                cmds.setAttr((dest_skin + '.skinningMethod'), skin_method)
 
-                # Копируем веса
+                # Copy
                 cmds.copySkinWeights(sourceSkin=source_skin,
                                      destinationSkin=dest_skin,
                                      noMirror=True,
@@ -274,8 +290,12 @@ def copy_skin_to_game_lods(*args):
                 if tempJoint:
                     cmds.delete(tempJoint)
                 
+                if cmds.attributeQuery('deformUserNormals', node=dest_skin, exists=True):
+                     if cmds.getAttr('%s.deformUserNormals' % dest_skin):
+                        cmds.setAttr('%s.deformUserNormals' % dest_skin, 0)
+
                 count += 1
-                print("Skin copied: %s -> %s" % (base_name, obj))
+                print("Skin copied: %s -> %s (Method: %s)" % (base_name, obj, skin_method))
     
     if count == 0:
         print "No matching *_game_LOD meshes found."

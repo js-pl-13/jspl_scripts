@@ -50,24 +50,17 @@ def run_cleanup_loop(max_inf):
     if not cl: return
         
     all_inf = cmds.skinCluster(cl, q=True, inf=True)
-    locked = []
+    
+    # --- AUTO UNLOCK SECTION (No Dialog) ---
+    locked_count = 0
     for inf in all_inf:
         if cmds.getAttr(inf + ".liw"):
-            locked.append(inf)
+            cmds.setAttr(inf + ".liw", 0) # Сразу разблокируем
+            locked_count += 1
     
-    if locked:
-        confirm = cmds.confirmDialog(
-            title='Locked Influences', 
-            message='Found %d LOCKED influences. Unlock?' % len(locked), 
-            button=['Unlock All', 'Abort'], 
-            defaultButton='Unlock All', 
-            cancelButton='Abort'
-        )
-        if confirm == 'Unlock All':
-            for inf in locked:
-                cmds.setAttr(inf + ".liw", 0)
-        else:
-            return
+    if locked_count > 0:
+        print "Auto-unlocked %d influences." % locked_count
+    # ---------------------------------------
     
     geo = cmds.skinCluster(cl, q=True, g=True)
     obj = geo[0]
@@ -144,11 +137,12 @@ def run_scene_check(max_inf):
     else:
         om.MGlobal.displayInfo(">> SUCCESS: Scene is clean.")
         cmds.inViewMessage(amg='<hl>Scene is Clean!</hl>', pos='midCenter', fade=True)
+
 #_____________ Class "Skin Checker Windows" _____________
 class SkinMethodChecker(object):
     def __init__(self):
         self.window_name = "checkerSkinMethodUI"
-        self.checkerSkinbuild_ui()
+        self.build_ui()
         self.refresh_list()
 
     def get_meshes_with_wrong_skin_method(self):
@@ -220,7 +214,7 @@ class SkinMethodChecker(object):
         print "Fixed %d skinClusters." % len(fixed)
         self.refresh_list()
 
-    def checkerSkinbuild_ui(self):
+    def build_ui(self):
         if cmds.window(self.window_name, exists=True):
             cmds.deleteUI(self.window_name)
 
@@ -229,14 +223,14 @@ class SkinMethodChecker(object):
 
         cmds.text(label="Meshes that don't have the Weight Blend method:", align="left", height=30)
 
-        self.tsl = cmds.textScrollList(height=150,allowMultiSelection=True,selectCommand=self.select_mesh)
+        self.tsl = cmds.textScrollList(height=150, allowMultiSelection=True, selectCommand=self.select_mesh)
 
         cmds.separator(h=5, style="in")
         
         cmds.rowLayout(numberOfColumns=3, adj=1)
         cmds.button(label="Refresh List", command=self.refresh_list, height=30)
         cmds.button(label="Fix Selected", command=self.fix_selected, height=30)
-        cmds.button(label="Fix ALL (Set to Weight Blend)", command=self.fix_all, height=30)
+        cmds.button(label="Fix ALL", command=self.fix_all, height=30)
         cmds.setParent("..")
 
         cmds.showWindow(self.window)
