@@ -12,7 +12,7 @@ from collections import OrderedDict
 # -------------------------------------------------
 # Config
 # -------------------------------------------------
-UI_FILE = r"D:\!MyScripts\jspl_transform_anims\jsp_transform_tool.ui"
+UI_FILE = r"D:\GitHub\jspl_scripts\jspl_anims_tool\jsp_transform_tool.ui"
 PROJECTS_DIR = r"D:\!MyScripts\jspl_transform_anims\projects"
 TEMP_FILES_DIR = r"D:\!MyScripts\jspl_transform_anims\temp_files"
 WINDOW_NAME = "jspl_transform_tool_win"
